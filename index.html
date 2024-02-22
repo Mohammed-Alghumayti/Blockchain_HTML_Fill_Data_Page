@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contract</title>
+  <link rel="stylesheet" href="style2.css">
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.6.0/dist/web3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+
+<body>
+  <h1>Contract</h1>
+  <form id="contract-form">
+    <label for="hospital-name">Hospital Name:</label>
+    <input type="text" id="hospital-name">
+    <label for="services">Description:</label>
+    <textarea id="services"></textarea>
+    <label for="salary">Salary:</label>
+    <input type="number" id="salary">
+    <label for="start-date">Start Date:</label>
+    <input type="date" id="start-date">
+    <label for="duration">Duration (Hours):</label>
+    <input type="number" id="duration">
+    <label for="notice-period">Notice Period (Minute):</label>
+    <input type="number" id="notice-period">
+    <input type="submit" value="Create Contract" >
+  </form>
+
+  <div id="contract-data" style="margin-top: 20px; display: none;">
+    <h2>Contract Data:</h2>
+    <p id="hospital-name-output"></p>
+    <p id="services-output"></p>
+    <p id="salary-output"></p>
+    <p id="start-date-output"></p>
+    <p id="duration-output"></p>
+    <p id="notice-period-output"></p>
+  </div>
+
+  <script>
+    // Initialize Web3
+    const web3 = new Web3('http://127.0.0.1:7545');
+
+    // Get the contract ABI and address
+    const abi = [
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "name": "contracts",
+        "outputs": [
+          {
+            "internalType": "string",
+            "name": "hospitalName",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "services",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "salary",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "startDate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "duration",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "noticePeriod",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "_hospitalName",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "_services",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_salary",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_startDate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_duration",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_noticePeriod",
+            "type": "uint256"
+          }
+        ],
+        "name": "createContract",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      }
+    ];
+    const address = '??????????????'; // Use the actual deployed contract address
+
+    // Create a contract instance
+    const contract = new web3.eth.Contract(abi, address);
+
+    // Handle the contract form submission
+    document.getElementById('contract-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      // Get the contract details from the form
+      const hospitalName = document.getElementById('hospital-name').value;
+      const services = document.getElementById('services').value;
+      const salary = document.getElementById('salary').value;
+      const startDate = Date.parse(document.getElementById('start-date').value) / 1000; // Convert to Unix timestamp
+      const duration = document.getElementById('duration').value;
+      const noticePeriod = document.getElementById('notice-period').value;
+
+      // Check if all fields are empty
+      if (!hospitalName || !services || !salary || !startDate || !duration || !noticePeriod) {
+        alert('Please fill in all fields.');
+        return;
+      }
+
+      // Get the current Ethereum account
+      const accounts = await web3.eth.getAccounts();
+      const fromAccount = accounts[0];
+
+      // Create the contract data
+      const contractData = {
+        _hospitalName: hospitalName,
+        _services: services,
+        _salary: salary,
+        _startDate: startDate,
+        _duration: duration,
+        _noticePeriod: noticePeriod
+      };
+
+      // Create the contract
+      await contract.methods.createContract(
+        contractData._hospitalName,
+        contractData._services,
+        contractData._salary,
+        contractData._startDate,
+        contractData._duration,
+        contractData._noticePeriod
+      ).send({ from: fromAccount });
+    });
+  </script>
+</body>
+
+</html>
